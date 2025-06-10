@@ -182,16 +182,14 @@ def update_hand(hand, word):
     
     # get each letter in word and update the count in the hand copy
     for letter in word.lower():
-        letter_count = hand_copy.get(letter)
-        if letter_count is not None and letter_count > 1:
-            hand_copy[letter] = letter_count - 1
-        elif letter_count is not None:
-            del hand_copy[letter]
+        if letter in hand_copy and hand_copy[letter] > 0:
+            hand_copy[letter] -= 1
+            if hand_copy[letter] == 0:
+                del hand_copy[letter]
                     
     # return a copy of the new hand
     return hand_copy
 
-print(update_hand({'j':2, 'o':1, 'l':1, 'w':1, 'n':2}, 'jolly'))
 #
 # Problem #3: Test word validity
 #
