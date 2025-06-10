@@ -94,16 +94,14 @@ def get_word_score(word, n):
     len_word = len(word)
     if len_word == 0: # if input is an empty string
         return 0
-    else:
-        lowercase_word = word.lower() # handle uppercase and mixed case strings
-        # get the first component which is the sum of the points for letters in the word
-        letter_score = sum(SCRABBLE_LETTER_VALUES[letter] for letter in lowercase_word)
-        # get the second component which is either [7 * word_length - 3 * ( n- word_length)] or 1, whichever is greater
-        length_score = (7 * len_word) - (3 * (n - len_word))
-        if length_score < 1:
-            length_score = 1
-        # return the product of the components
-        return letter_score * length_score
+
+    lowercase_word = word.lower() # handle uppercase and mixed case strings
+    # get the first component which is the sum of the points for letters in the word
+    letter_score = sum(SCRABBLE_LETTER_VALUES[letter] for letter in lowercase_word)
+    # get the second component which is either [7 * word_length - 3 * ( n- word_length)] or 1, whichever is greater
+    length_score = max(1, (7 * len_word) - (3 * (n - len_word)))
+    # return the product of the components
+    return letter_score * length_score
         
 
 #
@@ -180,8 +178,20 @@ def update_hand(hand, word):
     returns: dictionary (string -> int)
     """
 
-    pass  # TO DO... Remove this line when you implement this function
+    hand_copy = hand.copy()
+    
+    # get each letter in word and update the count in the hand copy
+    for letter in word.lower():
+        letter_count = hand_copy.get(letter)
+        if letter_count is not None and letter_count > 1:
+            hand_copy[letter] = letter_count - 1
+        elif letter_count is not None:
+            del hand_copy[letter]
+                    
+    # return a copy of the new hand
+    return hand_copy
 
+print(update_hand({'j':2, 'o':1, 'l':1, 'w':1, 'n':2}, 'jolly'))
 #
 # Problem #3: Test word validity
 #
