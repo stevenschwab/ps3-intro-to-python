@@ -97,17 +97,15 @@ def get_word_score(word, n):
     else:
         lowercase_word = word.lower() # handle uppercase and mixed case strings
         # get the first component which is the sum of the points for letters in the word
-        first_component_sum = 0
-        for letter in lowercase_word:
-            first_component_sum += SCRABBLE_LETTER_VALUES[letter]
+        letter_score = sum(SCRABBLE_LETTER_VALUES[letter] for letter in lowercase_word)
         # get the second component which is either [7 * word_length - 3 * ( n- word_length)] or 1, whichever is greater
-        second_component_sum = (7 * len_word) - (3 * (n - len_word))
-        if second_component_sum < 1:
-            second_component_sum = 1
+        length_score = (7 * len_word) - (3 * (n - len_word))
+        if length_score < 1:
+            length_score = 1
         # return the product of the components
-        return first_component_sum * second_component_sum
+        return letter_score * length_score
         
-print(get_word_score('it', 7))
+
 #
 # Make sure you understand how this function works and what it does!
 #
