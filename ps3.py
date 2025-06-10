@@ -91,9 +91,23 @@ def get_word_score(word, n):
     n: int >= 0
     returns: int >= 0
     """
-    
-    pass  # TO DO... Remove this line when you implement this function
-
+    len_word = len(word)
+    if len_word == 0: # if input is an empty string
+        return 0
+    else:
+        lowercase_word = word.lower() # handle uppercase and mixed case strings
+        # get the first component which is the sum of the points for letters in the word
+        first_component_sum = 0
+        for letter in lowercase_word:
+            first_component_sum += SCRABBLE_LETTER_VALUES[letter]
+        # get the second component which is either [7 * word_length - 3 * ( n- word_length)] or 1, whichever is greater
+        second_component_sum = (7 * len_word) - (3 * (n - len_word))
+        if second_component_sum < 1:
+            second_component_sum = 1
+        # return the product of the components
+        return first_component_sum * second_component_sum
+        
+print(get_word_score('it', 7))
 #
 # Make sure you understand how this function works and what it does!
 #
