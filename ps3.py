@@ -277,7 +277,6 @@ def play_hand(hand, word_list):
       
     """
     
-    # BEGIN PSEUDOCODE <-- Remove this comment when you implement this function
     # Keep track of the total score
     total_score = 0
     # As long as there are still letters left in the hand:
@@ -349,7 +348,31 @@ def substitute_hand(hand, letter):
     returns: dictionary (string -> int)
     """
     
-    pass  # TO DO... Remove this line when you implement this function
+    # return the same hand if the letter does not exist in the hand
+    if letter not in hand:
+        return hand
+    
+    hand_copy = hand.copy()
+    
+    def replace_letter(letter, replacement_letters):
+        # get the current vowel or consonant count
+        letter_count = hand_copy[letter]
+        # delete the vowel or consonant from the hand copy
+        del hand_copy[letter]
+        # get a random vowel or consonant that's different than the previous vowel or consonant
+        while True:
+            random_letter = random.choice(replacement_letters)
+            if random_letter != letter:
+                hand_copy[random_letter] = letter_count
+                break
+        return hand_copy
+        
+    # check if letter is a vowel
+    if letter in VOWELS:
+        return replace_letter(letter, VOWELS)
+    else:
+        return replace_letter(letter, CONSONANTS)
+
        
     
 def play_game(word_list):
