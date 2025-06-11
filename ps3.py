@@ -146,9 +146,12 @@ def deal_hand(n):
     hand={}
     num_vowels = int(math.ceil(n / 3))
 
-    for i in range(num_vowels):
+    for i in range(num_vowels - 1):
         x = random.choice(VOWELS)
         hand[x] = hand.get(x, 0) + 1
+        
+    # add a wildcard
+    hand['*'] = 1
     
     for i in range(num_vowels, n):    
         x = random.choice(CONSONANTS)
@@ -156,6 +159,7 @@ def deal_hand(n):
     
     return hand
 
+print(deal_hand(7))
 #
 # Problem #2: Update a hand by removing letters
 #
