@@ -242,8 +242,9 @@ def calculate_handlen(hand):
     hand: dictionary (string-> int)
     returns: integer
     """
+    return sum(hand.values())
     
-    pass  # TO DO... Remove this line when you implement this function
+print(calculate_handlen({'a': 1, 'r': 1, 'e': 1, 'j': 2, 'm': 1, '*': 1}))
 
 def play_hand(hand, word_list):
 
