@@ -208,35 +208,30 @@ def is_valid_word(word, hand, word_list):
     returns: boolean
     """
     low_word = word.lower()
-    wildcard_index = low_word.find('*')
+    if low_word.count('*') > 1: # restrict to at most one wildcard
+        return False
     
-    def is_entirely_composed(hand, low_word):
-        hand_copy = hand.copy()
+    hand_copy = hand.copy()
+    
+    def is_formable(word, hand_copy):
         # check if word is entirely composed of letters in the hand
-        for letter in low_word:
+        for letter in word:
             if letter not in hand_copy or hand_copy[letter] == 0:
                 return False
             hand_copy[letter] -= 1
-        
         return True
         
     
-    if wildcard_index == -1: # no wildcard char
-        if low_word not in word_list:
-            return False
-        
-        return is_entirely_composed(hand, low_word)
-    else: # wildcard is being used
-        # loop through replacing the * with a vowel to check if a word exists in word_list
-        for vowel in VOWELS:
-            low_word_copy = low_word.replace('*', vowel)
-            if low_word_copy in word_list: # check if word can be composed from hand
-                print(low_word_copy)
-                return is_entirely_composed(hand, low_word)
-            
-        return False
+    if '*' not in low_word:
+        return low_word in word_list and is_formable(low_word, hand_copy)
 
-print(is_valid_word('h*ney', {'n': 1, 'h': 1, '*': 1, 'y': 1, 'd': 1, 'w': 1, 'e': 2}, load_words()))
+    for vowel in VOWELS:
+        word_with_vowel = low_word.replace('*', vowel)
+        if word_with_vowel in word_list: # check if word can be composed from hand
+            return is_formable(low_word, hand_copy)
+        
+    return False
+
 #
 # Problem #5: Playing a hand
 #
