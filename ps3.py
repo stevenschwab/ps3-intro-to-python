@@ -16,7 +16,7 @@ CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
 HAND_SIZE = 7
 
 SCRABBLE_LETTER_VALUES = {
-    'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
+    '*': 0, 'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
 }
 
 # -----------------------------------
@@ -159,7 +159,6 @@ def deal_hand(n):
     
     return hand
 
-print(deal_hand(7))
 #
 # Problem #2: Update a hand by removing letters
 #
@@ -209,18 +208,35 @@ def is_valid_word(word, hand, word_list):
     returns: boolean
     """
     low_word = word.lower()
-    if low_word not in word_list:
-        return False
+    wildcard_index = low_word.find('*')
     
-    hand_copy = hand.copy()
-    # check if word is entirely composed of letters in the hand
-    for letter in low_word:
-        if letter not in hand_copy or hand_copy[letter] == 0:
+    def is_entirely_composed(hand, low_word):
+        hand_copy = hand.copy()
+        # check if word is entirely composed of letters in the hand
+        for letter in low_word:
+            if letter not in hand_copy or hand_copy[letter] == 0:
+                return False
+            hand_copy[letter] -= 1
+        
+        return True
+        
+    
+    if wildcard_index == -1: # no wildcard char
+        if low_word not in word_list:
             return False
-        hand_copy[letter] -= 1
-    
-    return True
+        
+        return is_entirely_composed(hand, low_word)
+    else: # wildcard is being used
+        # loop through replacing the * with a vowel to check if a word exists in word_list
+        for vowel in VOWELS:
+            low_word_copy = low_word.replace('*', vowel)
+            if low_word_copy in word_list: # check if word can be composed from hand
+                print(low_word_copy)
+                return is_entirely_composed(hand, low_word)
+            
+        return False
 
+print(is_valid_word('h*ney', {'n': 1, 'h': 1, '*': 1, 'y': 1, 'd': 1, 'w': 1, 'e': 2}, load_words()))
 #
 # Problem #5: Playing a hand
 #
