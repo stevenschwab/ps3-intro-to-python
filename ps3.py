@@ -285,7 +285,7 @@ def play_hand(hand, word_list):
         print("Current Hand:", end=" ")
         display_hand(hand)
         # Ask user for input
-        word = input('Enter word, or "!!" to indicate that you are finished:')
+        word = input('Please enter a word or "!!" to indicate you are done:')
         # If the input is two exclamation points:
         if word == "!!":
             # End the game (break out of the loop)
@@ -310,9 +310,10 @@ def play_hand(hand, word_list):
     # Game is over (user entered '!!' or ran out of letters),
     # so tell user the total score
     if calculate_handlen(hand) == 0:
-        print("Ran out of letters. Total score:", total_score, "points")
-    else:
-        print("Total score:", total_score, "points")
+        print("Ran out of letters")
+        
+    print("Total score for this hand:", total_score)
+    print("----------")
     # Return the total score as result of function
     return total_score
 
@@ -349,37 +350,33 @@ def substitute_hand(hand, letter):
     """
     
     # return the same hand if the letter does not exist in the hand
-    if letter not in hand:
+    if letter not in hand or letter == '*': # Don't substitute wildcard
         return hand
     
     hand_copy = hand.copy()
+    letter_count = hand_copy[letter] # get the current vowel or consonant count
+    del hand_copy[letter] # delete the vowel or consonant from the hand copy
     
-    def replace_letter(letter, replacement_letters):
-        # get the current vowel or consonant count
-        letter_count = hand_copy[letter]
-        # delete the vowel or consonant from the hand copy
-        del hand_copy[letter]
-        # get a random vowel or consonant that's different than the previous vowel or consonant
-        while True:
-            random_letter = random.choice(replacement_letters)
-            if random_letter != letter:
-                hand_copy[random_letter] = letter_count
-                break
-        return hand_copy
-        
-    # check if letter is a vowel
-    if letter in VOWELS:
-        return replace_letter(letter, VOWELS)
-    else:
-        return replace_letter(letter, CONSONANTS)
-
+    # choose replacement letters based on vowel/consonant
+    replacement_letters = VOWELS if letter in VOWELS else CONSONANTS
+    # Filter out letters already in hand or the original letter
+    valid_replacements = [c for c in replacement_letters if c not in hand_copy and c != letter and c != '*']
+    
+    if not valid_replacements: # no valid replacement available
+        return hand
+    
+    # Choose random replacement
+    new_letter = random.choice(valid_replacements)
+    hand_copy[new_letter] = letter_count
+    
+    return hand_copy
        
     
 def play_game(word_list):
     """
     Allow the user to play a series of hands
 
-    * Asks the user to input a total number of hands
+    * Asks the user to input a total number of hands -- done
 
     * Accumulates the score for each hand into a total score for the 
       entire series
@@ -405,10 +402,58 @@ def play_game(word_list):
 
     word_list: list of lowercase strings
     """
+    series_score = 0
+    curr_hand_score = 0
+    is_sub = True
+    is_replay = True
     
-    print("play_game not implemented.") # TO DO... Remove this line when you implement this function
+    def replay_hand(hand):
+        replay_hand = input("Would you like to replay the hand? ")
+        if replay_hand.lower() == 'yes':
+            is_replay = False
+            replayed_hand_score = play_hand(hand, word_list)
+            if replayed_hand_score > curr_hand_score:
+                series_score += replayed_hand_score - curr_hand_score
+            
+    num_of_hands = int(input("Enter total number of hands: "))
     
-
+    while num_of_hands > 0:
+        hand = deal_hand(HAND_SIZE)
+        print("Current hand:", end=" ")
+        display_hand(hand)
+    
+        if is_sub:
+            sub_answer = input("Would you like to substitute a letter? ")
+            
+            if sub_answer.lower() == 'yes':
+                is_sub = False
+                letter_to_replace = input("Which letter would you like to replace: ")
+                print()
+                new_hand = substitute_hand(hand, letter_to_replace)
+                curr_hand_score = play_hand(new_hand, word_list)
+                series_score += curr_hand_score
+                
+                if is_replay:
+                    replay_hand(new_hand)
+            else:
+                curr_hand_score = play_hand(hand, word_list)
+                series_score += curr_hand_score
+            
+                if is_replay:
+                    replay_hand(hand)
+        else:
+            curr_hand_score = play_hand(hand, word_list)
+            series_score += curr_hand_score
+            
+            if is_replay:
+                replay_hand(hand)
+            
+        num_of_hands -= 1
+        curr_hand_score = 0
+        
+    print("Total score over all hands:", series_score)
+    return series_score
+    
 
 #
 # Build data structures used for entire session and play game
