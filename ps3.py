@@ -403,53 +403,61 @@ def play_game(word_list):
     word_list: list of lowercase strings
     """
     series_score = 0
-    curr_hand_score = 0
-    is_sub = True
-    is_replay = True
+    can_substitute = True
+    can_replay = True
     
-    def replay_hand(hand):
-        replay_hand = input("Would you like to replay the hand? ")
-        if replay_hand.lower() == 'yes':
-            is_replay = False
-            replayed_hand_score = play_hand(hand, word_list)
-            if replayed_hand_score > curr_hand_score:
-                series_score += replayed_hand_score - curr_hand_score
-            
-    num_of_hands = int(input("Enter total number of hands: "))
+    while True:
+        try:
+            num_of_hands = int(input("Enter total number of hands: "))
+            if num_of_hands > 0:
+                break
+            print("Please enter a positive integer.")
+        except ValueError:
+            print("Please enter a valid integer.")
     
     while num_of_hands > 0:
         hand = deal_hand(HAND_SIZE)
         print("Current hand:", end=" ")
         display_hand(hand)
-    
-        if is_sub:
-            sub_answer = input("Would you like to substitute a letter? ")
+        
+        # Substitution
+        if can_substitute:
+            while True:
+                sub_answer = input("Would you like to substitute a letter? ").lower()
+                if sub_answer in ('yes', 'no'):
+                    break
+                print("Please enter 'yes' or 'no'.")
             
-            if sub_answer.lower() == 'yes':
-                is_sub = False
-                letter_to_replace = input("Which letter would you like to replace: ")
-                print()
-                new_hand = substitute_hand(hand, letter_to_replace)
-                curr_hand_score = play_hand(new_hand, word_list)
-                series_score += curr_hand_score
-                
-                if is_replay:
-                    replay_hand(new_hand)
-            else:
-                curr_hand_score = play_hand(hand, word_list)
-                series_score += curr_hand_score
-            
-                if is_replay:
-                    replay_hand(hand)
+            if sub_answer == 'yes':
+                can_substitute = False
+                letter_to_replace = input("Which letter would you like to replace: ").lower()
+                if len(letter_to_replace) == 1 and letter_to_replace.isalpha():
+                    print()
+                    hand = substitute_hand(hand, letter_to_replace)
+                else:
+                    print("Invalid letter, proceeding with original hand.")
         else:
-            curr_hand_score = play_hand(hand, word_list)
-            series_score += curr_hand_score
+            print()
+        
+        # Play hand
+        hand_score = play_hand(hand, word_list)
+        series_score += hand_score
+        
+        # Replay
+        if can_replay:
+            while True:
+                replay_answer = input("Would you like to replay the hand? ").lower()
+                if replay_answer in ('yes', 'no'):
+                    break
+                print("Please enter 'yes' or 'no'.")
             
-            if is_replay:
-                replay_hand(hand)
-            
+            if replay_answer == 'yes':
+                can_replay = False
+                replay_score = play_hand(hand, word_list)
+                series_score += max(0, replay_score - hand_score) # Add difference if better
+                
         num_of_hands -= 1
-        curr_hand_score = 0
+        
         
     print("Total score over all hands:", series_score)
     return series_score
